@@ -1,0 +1,10 @@
+{% extends "home_logs/base.html" %}  <!-- Full explicit path -->
+
+{% block content %}
+<h2>Sign Up</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Register</button>
+</form>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "home_logs/base.html" %}
+
+{% block content %}
+<h2>Logs</h2>
+{% for log in logs %}
+  <article>
+    <h3>{{ log.date }} • {{ log.get_mood_display }}</h3>
+    <p>{{ log.content|truncatewords:20 }}</p>
+    <!-- FIXED LINE: Added namespace -->
+    <a href="{% url 'home_logs:log_detail' log.id %}">Read more</a>
+  </article>
+{% endfor %}
+{% endblock %}

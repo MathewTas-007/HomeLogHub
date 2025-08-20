@@ -1,0 +1,17 @@
+{% extends "home_logs/base.html" %}
+
+{% block content %}
+<h2>Tag: {{ tag.name }}</h2>
+<h3>Related Logs:</h3>
+<ul>
+  {% for log in tag.logs.all %}
+    <li>
+      <a href="{% url 'home_logs:log_detail' log.id %}">
+        {{ log.content|truncatewords:10 }}
+      </a> ({{ log.date }})
+    </li>
+  {% empty %}
+    <li>No logs found for this tag.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

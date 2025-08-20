@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Home LogHub{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <h1>Home LogHub</h1>
+        <nav>
+            <!-- Navigation Links -->
+            <a href="{% url 'home_logs:home' %}">Home</a> |
+            <a href="{% url 'home_logs:log_list' %}">My Logs</a> |
+            <a href="{% url 'home_logs:tag_list' %}">Tags</a> |
+            
+            <!-- User Auth Section (FIXED DUPLICATES) -->
+            {% if user.is_authenticated %}
+                <span>Hello, {{ user.username }}!</span> |
+                <a href="{% url 'accounts:profile' %}">Profile</a> |
+                <form action="{% url 'accounts:logout' %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'accounts:login' %}">Login</a> |
+                <a href="{% url 'accounts:signup' %}">Sign Up</a>
+            {% endif %}
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

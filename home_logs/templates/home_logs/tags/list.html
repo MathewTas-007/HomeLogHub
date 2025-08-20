@@ -1,0 +1,15 @@
+{% extends "home_logs/base.html" %}
+
+{% block content %}
+<h2>Tags</h2>
+<ul>
+  {% for tag in tags %}
+    <li>
+      <!-- FIXED: Added namespace and correct parameter -->
+      <a href="{% url 'home_logs:tag_detail' pk=tag.id %}">
+        {{ tag.name }} (by {{ tag.user.username }})
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

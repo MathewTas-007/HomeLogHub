@@ -1,0 +1,10 @@
+{% extends "home_logs/base.html" %}
+
+{% block content %}
+<h2>Log from {{ log.date }}</h2>
+<p><strong>Mood:</strong> {{ log.get_mood_display }}</p>
+<pre>{{ log.content }}</pre>
+{% if log.tags.all %}
+  <p>Tags: {% for tag in log.tags.all %}{{ tag.name }} {% endfor %}</p>
+{% endif %}
+{% endblock %}
