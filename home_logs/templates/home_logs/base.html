@@ -12,7 +12,7 @@
             <a href="{% url 'home_logs:log_list' %}">My Logs</a> |
             <a href="{% url 'home_logs:tag_list' %}">Tags</a> |
             
-            <!-- User Auth Section (FIXED DUPLICATES) -->
+            <!-- User Auth Section - SIGNUP BACTERIA REMOVED 🧼 -->
             {% if user.is_authenticated %}
                 <span>Hello, {{ user.username }}!</span> |
                 <a href="{% url 'accounts:profile' %}">Profile</a> |
@@ -22,7 +22,8 @@
                 </form>
             {% else %}
                 <a href="{% url 'accounts:login' %}">Login</a> |
-                <a href="{% url 'accounts:signup' %}">Sign Up</a>
+                <!-- 🔥 SIGNUP BACTERIA REMOVED: Replaced with REGISTER -->
+                <a href="{% url 'accounts:register' %}">Register</a>
             {% endif %}
         </nav>
     </header>

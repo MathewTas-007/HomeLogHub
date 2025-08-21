@@ -2,8 +2,8 @@ from django import forms
 from django.contrib.auth.password_validation import validate_password
 from .models import User  # Your custom model
 
-# 🔥 COMPLETELY REPLACE UserCreationForm with this:
-class SignUpForm(forms.ModelForm):
+# 🔥 RENAMED:  → RegisterForm (consistent with URLs)
+class RegisterForm(forms.ModelForm):
     password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
@@ -62,6 +62,7 @@ class SignUpForm(forms.ModelForm):
             user.save()
         return user
 
+# ✅ UNCHANGED - These are already perfect
 class LoginForm(forms.Form):
     username = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -76,11 +77,12 @@ class LoginForm(forms.Form):
         })
     )
 
+# ✅ UNCHANGED - Perfect as is
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'email', 'bio', 'date_format']
-        widgets = {  # ✅ Fixed: Changed 'widget' to 'widgets'
+        widgets = {
             'bio': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
             'date_format': forms.Select(attrs={'class': 'form-control'}),
             'username': forms.TextInput(attrs={'class': 'form-control'}),

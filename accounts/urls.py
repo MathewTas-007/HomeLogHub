@@ -1,23 +1,30 @@
 # accounts/urls.py
 from django.urls import path, reverse_lazy
-from .views import verify_email
-from . import views
+from django.views.generic import RedirectView
 from django.contrib.auth import views as auth_views
-
+from . import views
+from .views import verify_email
 
 app_name = 'accounts'
 
 urlpatterns = [
-    path('signup/', views.signup, name='signup'), # added here 
+    # 🔥 REDIRECT: Old URLs -> New register page
+    path('signup/', RedirectView.as_view(
+        url=reverse_lazy('accounts:register'), 
+        permanent=True
+    ), name='signup_legacy'),
+    
+    # ✅ ACTIVE AUTH ENDPOINTS
     path('register/', views.register, name='register'),
+    path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
-    path('profile/', views.ProfileView.as_view(), name ='profile'),
+    
+    # ✅ PROFILE MANAGEMENT
+    path('profile/', views.profile, name='profile'),
     path('profile/edit/', views.ProfileEditView.as_view(), name='profile_edit'),
     path('password/', views.CustomPasswordChangeView.as_view(), name='password_change'),
-    # Add more later (login, logout, etc.)
-    path('login/', views.user_login, name='login'),
-    path('profile/', views.profile, name='profile'),
-    # ... existing URLs ...  
+    
+    # ✅ PASSWORD RESET FLOW
     path('password-reset/', auth_views.PasswordResetView.as_view(  
         template_name='accounts/password_reset.html',  
         email_template_name='accounts/password_reset_email.html',  
@@ -33,7 +40,7 @@ urlpatterns = [
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(  
         template_name='accounts/password_reset_complete.html'  
     ), name='password_reset_complete'),  
+    
+    # ✅ EMAIL VERIFICATION
     path('verify_email/<uidb64>/<token>/', verify_email, name='verify_email'),
-
-
 ]

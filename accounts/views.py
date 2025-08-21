@@ -13,24 +13,25 @@ from django.views.generic import TemplateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import PasswordChangeView
 from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm
-from django.contrib.auth.models import User
 
+from .forms import SignUpForm, LoginForm, ProfileForm
 
-from .forms import SignUpForm, LoginForm, ProfileForm  # Make sure these exist in forms.py
-
-
-# form for editing user profile (excluding password)
+# ================================
+# CUSTOM USER FORM CLASSES
+# ================================
 class CustomUserChangeForm(UserChangeForm):
-    password = None #  Remove the password field
+    password = None  # Remove the password field
+    
     class Meta:
-        model = User
-        fields = ('username', 'email', 'first_name',  'last_name')
+        model = get_user_model()  # Use your custom user model
+        fields = ('username', 'email', 'first_name', 'last_name')
 
-# View to display the user's profile
+# ================================
+# CLASS-BASED VIEWS
+# ================================
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'accounts/profile.html'
 
-# View to edit the user's profile
 class ProfileEditView(LoginRequiredMixin, UpdateView):
     form_class = CustomUserChangeForm
     template_name = 'accounts/profile_edit.html'
@@ -39,10 +40,10 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
     def get_object(self):
         return self.request.user
 
-#  View to change password 
 class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
-    template_name = 'accounts/password_change'
+    template_name = 'accounts/password_change.html'
     success_url = reverse_lazy('accounts:profile')
+
 # ================================
 # AUTH VIEWS
 # ================================
@@ -50,16 +51,14 @@ def register(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False) # added later
-            user.email_verified = False # New users start unverified
+            user = form.save(commit=False)
+            user.email_verified = False  # New users start unverified
             user.save()
-            # 🚀 Send verification email after registration
             send_verification_email(user, request)
             return redirect('accounts:verification_sent')
     else:
         form = SignUpForm()
     return render(request, 'accounts/register.html', {'form': form})
-
 
 def user_login(request):
     if request.method == 'POST':
@@ -75,11 +74,9 @@ def user_login(request):
         form = LoginForm()
     return render(request, 'accounts/login.html', {'form': form})
 
-
 def user_logout(request):
     logout(request)
     return redirect('home_logs:home')
-
 
 # ================================
 # PROFILE VIEW
@@ -95,11 +92,10 @@ def profile(request):
         form = ProfileForm(instance=request.user)
     return render(request, 'accounts/profile.html', {'form': form})
 
-
 # ================================
 # EMAIL VERIFICATION VIEWS
 # ================================
-def send_verification_email(request, user):
+def send_verification_email(user, request):
     """Send email verification link to user."""
     token = default_token_generator.make_token(user)
     uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -111,34 +107,26 @@ def send_verification_email(request, user):
     })
     send_mail(subject, message, None, [user.email])
 
-
 @login_required
 def verify_email(request, uidb64, token):
-    user = get_user_model()
+    User = get_user_model()  # Get your custom user model
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
 
-        if default_token_generator.check_token(use, token):
-            user.email_verified = True # Add this field to your User model
+        if default_token_generator.check_token(user, token):  # Fixed typo: 'use' -> 'user'
+            user.email_verified = True
             user.save()
             return render(request, 'accounts/verification_success.html')
         else:
             return render(request, 'accounts/verification_failed.html')
 
-    except (TypeError, ValueError, OverflowError, User.DoesNotError):
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):  # Fixed typo: 'DoesNotError' -> 'DoesNotExist'
         return render(request, 'accounts/verification_failed.html')
 
-from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm
-
-def signup(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('accounts:login')  # Redirect to login after success
-    else:
-        form = UserCreationForm()
-    
-    return render(request, 'accounts/signup.html', {'form': form})
+# ================================
+# 🧼 SIGNUP BACTERIA REMOVED:
+# ================================
+# ❌ DELETED: def signup(request): 
+# ❌ DELETED: UserCreationForm imports and usage
+# ❌ DELETED: Redundant django.contrib.auth.models.User import
