@@ -1,53 +1,54 @@
-from django.db import models 
-from django.contrib.auth.models import AbstractUser 
-from django.conf import settings # Best pratice for User reference
-from django.utils import timezone # add this line
 
-# Create your models here. 
-
-
-class User(AbstractUser):
-    bio = models.TextField(blank=True, null=True)
-    date_format = models.CharField(max_length=20, default='YYYY-MM-DD')
-    
-    # Add these lines to prevent clashes
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='home_logs_users',
-        blank=True,
-        help_text='The groups this user belongs to.',
-        verbose_name='groups'
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='home_logs_users',
-        blank=True,
-        help_text='Specific permissions for this user.',
-        verbose_name='user permissions'
-    )
-
-    def __str__(self):
-        return self.username
+from django.db import models
+from django.conf import settings
+from django.utils import timezone
 
 class Tag(models.Model):
     name = models.CharField(max_length=50)
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, # References your custom User.
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='tags'
     )
 
     class Meta:
-        unique_together = ('name', 'user') # Prevent duplicate tags per user.
+        unique_together = ('name', 'user')
+        ordering = ['name']
 
     def __str__(self):
-        return f"{self.user.username}'s tag: {self.name}"
+        return f"#{self.name}"
 
 class LogEntry(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now_add=True)
+    MOOD_CHOICES = [
+        ('😊', 'Happy'),
+        ('😐', 'Neutral'),
+        ('😢', 'Sad'),
+        ('🔥', 'Energetic'),
+        ('😴', 'Tired'),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE, 
+        related_name='logs'
+    )
+    date = models.DateField(default=timezone.now)
     content = models.TextField()
-    tags = models.ManyToManyField(Tag, blank=True, related_name="logs")
+    mood = models.CharField(
+        max_length=2,
+        choices=MOOD_CHOICES,
+        blank=True,
+        null=True
+    )
+    tags = models.ManyToManyField(
+        'Tag',
+        related_name='logs',
+        blank=True
+    )
+
+    class Meta:
+        ordering = ['-date']
+        verbose_name_plural = 'Log Entries'
 
     def __str__(self):
-        return f"{self.user.username}'s log: {self.date}"
+        return f"{self.user.username}'s log on {self.date}"

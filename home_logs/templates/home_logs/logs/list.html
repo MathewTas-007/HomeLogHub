@@ -1,13 +1,12 @@
-{% extends "home_logs/base.html" %}
-
-{% block content %}
-<h2>Logs</h2>
 {% for log in logs %}
   <article>
-    <h3>{{ log.date }} • {{ log.get_mood_display }}</h3>
-    <p>{{ log.content|truncatewords:20 }}</p>
-    <!-- FIXED LINE: Added namespace -->
-    <a href="{% url 'home_logs:log_detail' log.id %}">Read more</a>
+    <h3>
+      {{ log.date|date:"Y-m-d" }} • 
+      {{ log.get_mood_display|default:"No mood" }}
+    </h3>
+    <p>{{ log.content|truncatewords:20|default:"No content" }}</p>
+    <a href="{% url 'home_logs:log_detail' log.pk %}">Read more</a>
   </article>
+{% empty %}
+  <p>No logs yet. <a href="{% url 'home_logs:log_create' %}">Create your first log</a></p>
 {% endfor %}
-{% endblock %}
