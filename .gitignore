@@ -3,3 +3,19 @@ __pycache__/
 *.pyc
 .env
 .env
+
+# Environment
+.env
+.env.prod
+
+# Database
+*.sqlite3
+*.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Static files (will be collected)
+staticfiles/
